@@ -272,10 +272,10 @@ class BF_shell:
 
 
 class BF_integer:
-    def __init__(self, shell = BF_shell):
+    def __init__(self, shell, size=4):
         self.shell = shell
-        self.pointer = self.shell.find_mem(size=4)
-        self.size = 4
+        self.pointer = self.shell.find_mem(size=size)
+        self.size = size
 
     def set(self, value):
         for i in range(self.pointer, self.pointer + self.size):
@@ -315,7 +315,7 @@ class BF_integer:
             self.shell.zero(self.pointer + i)
 
     def mult(self, other):
-        temp = BF_integer(self.shell)
+        temp = BF_integer(self.shell, size=self.size)
         temp.zero()
         for i in range(self.size):
             self.shell.mult(self.pointer + i, other, temp.pointer + ((i + 1) % temp.size))
@@ -347,7 +347,7 @@ class BF_integer:
         return self.shell.condition_neg(self.pointer + self.size - 1)
 
     def condition_less(self, other):
-        tmp = BF_integer(self.shell)
+        tmp = BF_integer(self.shell, size=self.size)
         tmp.copy(self)
         tmp.sub(other)
         res = tmp.condition_neg()
@@ -356,7 +356,7 @@ class BF_integer:
 
     def scan(self):
         self.zero()
-        inp = BF_integer(self.shell)
+        inp = BF_integer(self.shell, size=self.size)
         inp.zero()
         ten = self.shell.find_mem()
         self.shell.set(ten, 10)
@@ -383,7 +383,7 @@ class BF_integer:
 
         buffer = BF_reverse_buffer(self.shell)
         buffer.zero()
-        printed = BF_integer(self.shell)
+        printed = BF_integer(self.shell, size=self.size)
         printed.copy(self)
 
         def while_body():
@@ -417,7 +417,7 @@ class BF_mem_mover:
         pass
 
 class BF_reverse_buffer(BF_mem_mover):
-    def __init__(self, shell = BF_shell, size=40):
+    def __init__(self, shell = BF_shell, size=120):
         self.shell = shell
         self.pointer = self.shell.find_mem(size=size)
         self.size = size
@@ -473,11 +473,11 @@ shell = BF_shell(cs)
 # shell.set(c, 16)
 # shell.div_long(a, b, c, trash)
 
-a = BF_integer(shell)
+a = BF_integer(shell, size=16)
 a.scan()
-b = BF_integer(shell)
+b = BF_integer(shell, size=16)
 b.scan()
-c = BF_integer(shell)
+c = BF_integer(shell, size=16)
 
 condition = shell.find_mem()
 shell.set(condition, 1)
@@ -503,4 +503,8 @@ b.print()
 # shell.copy(a, buffer)
 # buffer.push()
 # shell.inc(buffer, 23)
+print(len(str(cs)))
+
+with open("../interpreter/code.bf", "w") as f:
+    f.write(str(cs))
 print(cs)
